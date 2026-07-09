@@ -6,6 +6,14 @@ assumptions — so you can see your habits add up over time and shop more consci
 
 > Estimates are educational, not a certified life-cycle assessment.
 
+## Preview
+
+<p align="center">
+  <img src="docs/landing-light.png" width="49%" />
+  <img src="docs/landing-dark.png" width="49%" />
+</p>
+
+
 ## Tech stack
 
 - React 18 + Vite
