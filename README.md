@@ -69,7 +69,7 @@ The footprint estimate (`src/utils/carbonCalculator.js`) combines:
 This is intentionally simple and transparent — the goal is to make relative comparisons
 between purchases, not to match a certified life-cycle assessment.
 
-## Preview
+## Dashboard & Footprint History Preview
 
 <p align="center">
   <img src="assets/Dashboard.png" width="49%" />
