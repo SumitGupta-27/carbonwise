@@ -72,8 +72,8 @@ between purchases, not to match a certified life-cycle assessment.
 ## Preview
 
 <p align="center">
-  <img src="docs/Dashboard.png" width="49%" />
-  <img src="docs/Footprint_Record.png" width="49%" />
+  <img src="assets/Dashboard.png" width="49%" />
+  <img src="assets/Footprint_Record.png" width="49%" />
 </p>
 
 
