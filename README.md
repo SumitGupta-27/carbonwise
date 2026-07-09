@@ -14,10 +14,10 @@ assumptions — so you can see your habits add up over time and shop more consci
 </p>
 
 
-> ## 🚀 Live Demo
-> **🌐 https://carbonwise-beta.vercel.app/**
->
-> **Try CarbonWise instantly — no installation required.**
+## 🚀 Live Demo
+**🌐 https://carbonwise-beta.vercel.app/**
+
+**Try CarbonWise instantly — no installation required.**
 
 A capstone project in support of **UN SDG 13 — Climate Action**...
 
