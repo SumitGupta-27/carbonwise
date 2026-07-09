@@ -9,8 +9,8 @@ assumptions — so you can see your habits add up over time and shop more consci
 ## Preview
 
 <p align="center">
-  <img src="docs/landing-light.png" width="49%" />
-  <img src="docs/landing-dark.png" width="49%" />
+  <img src="assets/landing-light.png" width="49%" />
+  <img src="assets/landing-dark.png" width="49%" />
 </p>
 
 
