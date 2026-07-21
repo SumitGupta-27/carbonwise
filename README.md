@@ -150,7 +150,3 @@ carbonwise/
 ## Contributing
 
 Contributions are welcome. Please open an issue to discuss substantial changes, then submit a focused pull request with a clear description and build verification.
-
-## License
-
-No license file is currently included in this repository. All rights are reserved unless the project owner adds a license.
