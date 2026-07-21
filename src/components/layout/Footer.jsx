@@ -30,7 +30,7 @@ export default function Footer() {
           <p className="label-eyebrow mb-3">Connect</p>
           <ul className="space-y-2 text-sm text-ink-light/65 dark:text-ink-dark/65">
             <li>
-              <a href="#" className="flex items-center gap-2 hover:text-forest-600 dark:hover:text-forest-300 transition-colors">
+              <a href="https://github.com/SumitGupta-27/carbonwise" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-forest-600 dark:hover:text-forest-300 transition-colors">
                 <Github size={15} /> GitHub repository
               </a>
             </li>

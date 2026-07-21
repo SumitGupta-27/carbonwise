@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 
@@ -7,15 +7,17 @@ import Footer from './components/layout/Footer'
 import LoadingScreen from './components/ui/LoadingScreen'
 import ToastContainer from './components/ui/ToastContainer'
 
-import Landing from './pages/Landing'
-import About from './pages/About'
-import Dashboard from './pages/Dashboard'
-import AddProduct from './pages/AddProduct'
-import History from './pages/History'
-import Insights from './pages/Insights'
-import EcoTips from './pages/EcoTips'
-import Impact from './pages/Impact'
-import NotFound from './pages/NotFound'
+const Landing = lazy(() => import('./pages/Landing'))
+const About = lazy(() => import('./pages/About'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const AddProduct = lazy(() => import('./pages/AddProduct'))
+const History = lazy(() => import('./pages/History'))
+const Insights = lazy(() => import('./pages/Insights'))
+const EcoTips = lazy(() => import('./pages/EcoTips'))
+const Impact = lazy(() => import('./pages/Impact'))
+const Community = lazy(() => import('./pages/Community'))
+const DoomsdayChallenge = lazy(() => import('./pages/DoomsdayChallenge'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 export default function App() {
   const [loading, setLoading] = useState(true)
@@ -37,6 +39,7 @@ export default function App() {
       <Navbar />
       <div className="flex-1">
         <AnimatePresence mode="wait">
+          <Suspense fallback={<div className="max-w-7xl mx-auto px-5 sm:px-8 py-12 text-ink-light/55 dark:text-ink-dark/55">Loading page...</div>}>
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Landing />} />
             <Route path="/about" element={<About />} />
@@ -46,8 +49,11 @@ export default function App() {
             <Route path="/insights" element={<Insights />} />
             <Route path="/eco-tips" element={<EcoTips />} />
             <Route path="/impact" element={<Impact />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/doomsday-challenge" element={<DoomsdayChallenge />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </AnimatePresence>
       </div>
       <Footer />

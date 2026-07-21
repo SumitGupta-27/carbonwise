@@ -1,21 +1,24 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Calculator, Leaf } from 'lucide-react'
+import { Leaf, Search, Sparkles } from 'lucide-react'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
 import Badge from '../ui/Badge'
 import ProgressRing from '../ui/ProgressRing'
 import { CATEGORY_OPTIONS, MATERIAL_OPTIONS, SHIPPING_OPTIONS, estimateCarbonFootprint, getImpactLevel } from '../../utils/carbonCalculator'
+import { CarbonService } from '../../services/carbon/CarbonService'
 import { useData } from '../../context/DataContext'
 
 const initialForm = {
   name: '',
-  category: CATEGORY_OPTIONS[0],
+  category: 'Others',
   weight: '',
   material: MATERIAL_OPTIONS[0],
   distance: '',
   shippingMethod: SHIPPING_OPTIONS[0],
+  originCountry: '',
+  destinationCountry: '',
 }
 
 export default function ProductForm({ existingProduct, onDone }) {
@@ -23,6 +26,8 @@ export default function ProductForm({ existingProduct, onDone }) {
   const navigate = useNavigate()
   const [form, setForm] = useState(existingProduct || initialForm)
   const [calculated, setCalculated] = useState(existingProduct ? existingProduct.footprint : null)
+  const [estimate, setEstimate] = useState(existingProduct?.carbonEstimate || null)
+  const [isEstimating, setIsEstimating] = useState(false)
   const [errors, setErrors] = useState({})
 
   const isEditing = Boolean(existingProduct)
@@ -36,6 +41,7 @@ export default function ProductForm({ existingProduct, onDone }) {
 
   const handleChange = (field) => (e) => {
     setForm((f) => ({ ...f, [field]: e.target.value }))
+    if (['name', 'category', 'weight', 'material', 'distance', 'shippingMethod', 'originCountry', 'destinationCountry'].includes(field)) setEstimate(null)
     setErrors((err) => ({ ...err, [field]: undefined }))
   }
 
@@ -48,16 +54,23 @@ export default function ProductForm({ existingProduct, onDone }) {
     return Object.keys(err).length === 0
   }
 
-  const handleCalculate = () => {
+  const handleCalculate = async () => {
     if (!validate()) return
-    setCalculated(estimateCarbonFootprint(form))
+    setIsEstimating(true)
+    const nextEstimate = await CarbonService.getEstimate(form)
+    setForm((current) => ({ ...current, category: nextEstimate.category }))
+    setEstimate(nextEstimate)
+    setCalculated(nextEstimate.footprint)
+    setIsEstimating(false)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
-    const footprint = estimateCarbonFootprint(form)
-    const payload = { ...form, weight: Number(form.weight), distance: Number(form.distance), footprint }
+    setIsEstimating(true)
+    const nextEstimate = estimate || await CarbonService.getEstimate(form)
+    const payload = { ...form, category: nextEstimate.category, weight: Number(form.weight), distance: Number(form.distance), footprint: nextEstimate.footprint, carbonEstimate: nextEstimate }
+    setIsEstimating(false)
 
     if (isEditing) {
       updateProduct(existingProduct.id, payload)
@@ -81,6 +94,7 @@ export default function ProductForm({ existingProduct, onDone }) {
               value={form.name}
               onChange={handleChange('name')}
             />
+            <p className="text-xs text-ink-light/45 dark:text-ink-dark/45 mt-1.5">Analyze the name to identify a likely category and retrieve an estimate.</p>
             {errors.name && <p className="text-xs text-clay-500 mt-1">{errors.name}</p>}
           </div>
 
@@ -141,13 +155,24 @@ export default function ProductForm({ existingProduct, onDone }) {
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1.5 block" htmlFor="originCountry">Origin country code <span className="text-ink-light/40 dark:text-ink-dark/40">(optional)</span></label>
+              <input id="originCountry" maxLength="2" className="input-field uppercase" placeholder="CN" value={form.originCountry || ''} onChange={handleChange('originCountry')} />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1.5 block" htmlFor="destinationCountry">Destination country code <span className="text-ink-light/40 dark:text-ink-dark/40">(optional)</span></label>
+              <input id="destinationCountry" maxLength="2" className="input-field uppercase" placeholder="IN" value={form.destinationCountry || ''} onChange={handleChange('destinationCountry')} />
+              <p className="text-xs text-ink-light/45 dark:text-ink-dark/45 mt-1.5">Add ISO codes for verified shipping data via emissions.dev.</p>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button type="button" variant="secondary" onClick={handleCalculate}>
-              <Calculator size={16} /> Calculate
+            <Button type="button" variant="secondary" onClick={handleCalculate} disabled={isEstimating}>
+              {isEstimating ? <Sparkles size={16} className="animate-pulse" /> : <Search size={16} />} {isEstimating ? 'Estimating...' : 'Analyze & calculate'}
             </Button>
-            <Button type="submit" variant="primary">
+            <Button type="submit" variant="primary" disabled={isEstimating}>
               <Leaf size={16} /> {isEditing ? 'Save changes' : 'Add to history'}
             </Button>
           </div>
@@ -172,6 +197,16 @@ export default function ProductForm({ existingProduct, onDone }) {
 
         {impact && (
           <Badge tone={impact.tone} className="mt-6">{impact.label}</Badge>
+        )}
+
+        {estimate && (
+          <div className="mt-4 text-left w-full rounded-xl bg-forest-500/5 border border-forest-500/10 p-4">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <Badge tone="forest">{estimate.confidence}</Badge>
+              <span className="text-xs text-ink-light/45 dark:text-ink-dark/45 text-right">{estimate.source}</span>
+            </div>
+            <p className="text-xs text-ink-light/60 dark:text-ink-dark/60 leading-relaxed">{estimate.explanation}</p>
+          </div>
         )}
 
         <p className="text-xs text-ink-light/45 dark:text-ink-dark/45 mt-6 max-w-[220px]">

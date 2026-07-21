@@ -1,111 +1,156 @@
-# CarbonWise — Personal Carbon Footprint Tracker
+# CarbonWise
 
-A capstone project in support of **UN SDG 13 — Climate Action**. CarbonWise estimates the carbon
-footprint of the products you buy online — using category, weight, material, and shipping
-assumptions — so you can see your habits add up over time and shop more consciously.
+> A personal carbon-footprint tracker for more conscious online purchases.
 
-> Estimates are educational, not a certified life-cycle assessment.
+CarbonWise helps people log products, estimate their CO2e impact, and understand the patterns behind their purchases. It combines a local estimation model with optional verified freight estimates from emissions.dev, presented in a responsive green-themed dashboard.
 
-## Preview
+**[Live demo](https://carbonwise-beta.vercel.app/)** · **[GitHub repository](https://github.com/SumitGupta-27/carbonwise)**
+
+## Features
+
+- Product footprint estimates based on category, material, weight, and shipping method
+- Optional verified freight estimates through emissions.dev using origin/destination country codes
+- Automatic local-estimate fallback for missing API configuration, unsupported routes, rate limits, and upstream errors
+- Dashboard charts, category breakdowns, time-based summaries, and sustainability insights
+- Searchable product history with editing, deletion, filters, and sorting
+- Achievement badges, impact equivalents, and practical eco tips
+- Persistent light/dark theme and browser `localStorage` data
+- Responsive navigation with an accessible Explore menu
+- Community and Doomsday Challenge previews with future-feature roadmaps
+
+> CarbonWise estimates are educational and are not a certified product life-cycle assessment. emissions.dev results cover freight emissions for the supplied route.
+
+## Screenshots
 
 <p align="center">
-  <img src="assets/landing-light.png" width="49%" />
-  <img src="assets/landing-dark.png" width="49%" />
+  <img src="assets/landing-light.png" alt="CarbonWise landing page in light mode" width="49%" />
+  <img src="assets/landing-dark.png" alt="CarbonWise landing page in dark mode" width="49%" />
 </p>
 
+<p align="center">
+  <img src="assets/Dashboard.png" alt="CarbonWise dashboard" width="49%" />
+  <img src="assets/Footprint_Record.png" alt="CarbonWise footprint history" width="49%" />
+</p>
 
-## 🚀 Live Demo
-**🌐 https://carbonwise-beta.vercel.app/**
+## Tech Stack
 
-**Try CarbonWise instantly — no installation required.**
-
-A capstone project in support of **UN SDG 13 — Climate Action**...
-
-## Tech stack
-
-- React 18 + Vite
-- Tailwind CSS (custom forest / slate-teal / lime design system)
-- React Router
-- Framer Motion
-- Recharts
+- React 18, Vite, and React Router
+- Tailwind CSS and PostCSS
+- Framer Motion for page and UI animation
+- Recharts for dashboard visualizations
 - Lucide React icons
-- Browser `localStorage` for persistence — no backend required
+- Node.js built-in HTTP server for the carbon-data proxy
+- emissions.dev Freight API for optional verified shipment estimates
 
-## Getting started
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18 or later
+- An [emissions.dev API key](https://emissions.dev/docs/getting-started) for verified freight estimates (optional)
+
+### Installation
 
 ```bash
+git clone https://github.com/SumitGupta-27/carbonwise.git
+cd carbonwise
 npm install
+```
+
+### Environment variables
+
+Copy `.env.example` to `.env` and add an emissions.dev key if you want verified freight estimates:
+
+```bash
+EMISSIONS_DEV_API_KEY=em_live_replace_with_your_key
+CARBON_API_PORT=8787
+```
+
+`.env` is ignored by Git. The key is read only by the Node server and is never exposed to the browser. Without a key, CarbonWise continues to use its local estimation model.
+
+### Run locally
+
+Start the API proxy in one terminal:
+
+```bash
+npm run server
+```
+
+Start the Vite app in another terminal:
+
+```bash
 npm run dev
 ```
 
-Then open the URL Vite prints (usually `http://localhost:5173`).
+Vite runs at `http://localhost:5173` and proxies `/api` requests to `http://localhost:8787`.
 
-To build for production:
+### Production build
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## Pages
+## Carbon Data Flow
 
-| Route | Description |
-|---|---|
-| `/` | Landing page with hero and product overview |
-| `/about` | What a carbon footprint is, SDG 13, and how the app helps |
-| `/dashboard` | Weekly / monthly / yearly / lifetime summary cards + charts |
-| `/add-product` | Form to log a new product and estimate its footprint |
-| `/history` | Searchable, filterable, sortable product table with edit/delete |
-| `/insights` | Highest/lowest emitters, averages, trends, achievement badges |
+`CarbonService` sends estimate requests to the local `POST /api/carbon/estimate` endpoint. The server validates shipment input, keeps the emissions.dev key private, and caches identical freight calculations in memory for 24 hours (up to 500 entries). Successful responses include their available source information. If a verified result cannot be obtained, the UI falls back to the transparent local calculator and labels the result accordingly.
+
+## Routes
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Landing page |
+| `/dashboard` | Footprint summaries and charts |
+| `/add-product` | Product estimate and logging flow |
+| `/history` | Product history management |
+| `/insights` | Trends, achievements, and comparison insights |
 | `/eco-tips` | Practical sustainability tips |
-| `/impact` | Real-world equivalents (driving distance, electricity days, trees) |
+| `/impact` | Real-world footprint equivalents |
+| `/community` | Community preview and roadmap |
+| `/doomsday-challenge` | Seven-day challenge preview |
+| `/about` | CarbonWise and SDG 13 overview |
 
-## Data & estimation model
+## Project Structure
 
-All product data lives in the browser's `localStorage` under the key `carbonwise-products` —
-nothing is sent to a server. On first run the app seeds a handful of demo products so the
-dashboard isn't empty; add your own and edit or delete the demo entries at any time from the
-History page.
-
-The footprint estimate (`src/utils/carbonCalculator.js`) combines:
-
-- a manufacturing factor per **category** (kg CO2e per kg of product)
-- a multiplier per **material**
-- a shipping factor per **km** that depends on **shipping method** (road / rail / sea / air)
-
-This is intentionally simple and transparent — the goal is to make relative comparisons
-between purchases, not to match a certified life-cycle assessment.
-
-## Dashboard & Footprint History Preview
-
-<p align="center">
-  <img src="assets/Dashboard.png" width="49%" />
-  <img src="assets/Footprint_Record.png" width="49%" />
-</p>
-
-
-## Project structure
-
-```
-src/
-  components/
-    layout/      Navbar, Footer, PageWrapper
-    ui/           Buttons, cards, toasts, dialogs, progress rings, theme toggle…
-    dashboard/    Summary cards + charts
-    products/     Add/edit form, history table
-    insights/     Insight stat cards
-    ecotips/      Tip cards
-    impact/       Impact comparison cards
-    badges/       Achievement badge display
-  context/        ThemeContext (dark/light), DataContext (products, toasts)
-  hooks/          useLocalStorage
-  pages/          One file per route
-  utils/          Carbon calculator, stats, equivalents, formatters, dummy data, achievements
+```text
+carbonwise/
+├── assets/
+├── server/
+├── src/
+│   ├── components/
+│   ├── context/
+│   ├── hooks/
+│   ├── pages/
+│   ├── services/
+│   └── utils/
+├── .env.example
+├── package.json
+├── tailwind.config.js
+└── vite.config.js
 ```
 
-## Notes for grading / demo
+| Folder | Purpose |
+| --- | --- |
+| `assets/` | README and application preview images |
+| `server/` | Node HTTP proxy for emissions.dev requests and caching |
+| `src/components/` | Reusable layout, UI, chart, product, and feature components |
+| `src/context/` | Theme, product data, toast, and persistence state |
+| `src/hooks/` | Reusable browser hooks, including `useLocalStorage` |
+| `src/pages/` | Route-level React views |
+| `src/services/` | Carbon service and local estimation provider |
+| `src/utils/` | Calculation, formatting, statistics, sample-data, and achievement helpers |
 
-- Dark/light mode toggle persists across sessions.
-- Deleting a product asks for confirmation first.
-- Achievement badges unlock automatically as you log products (see `utils/achievements.js`).
-- All charts and summary numbers update live — no page refresh needed.
+## Roadmap
+
+- Add user accounts and optional cloud sync
+- Expand the Community experience with groups, discussions, and leaderboards
+- Launch random matching and daily check-ins for Doomsday Challenge
+- Add richer factor provenance and additional verified carbon-data sources
+
+## Contributing
+
+Contributions are welcome. Please open an issue to discuss substantial changes, then submit a focused pull request with a clear description and build verification.
+
+## License
+
+No license file is currently included in this repository. All rights are reserved unless the project owner adds a license.
